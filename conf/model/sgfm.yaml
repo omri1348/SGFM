@@ -1,0 +1,11 @@
+_target_: sgfm.pl_modules.sgfm_model.SGFM
+time_dim: 256
+cost_coord: 100.
+cost_lattice: 1.
+cost_atom_types: 1.
+normalize_k: true
+
+
+defaults:
+  - flow_model: flow_model
+  

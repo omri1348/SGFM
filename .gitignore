@@ -1,0 +1,8 @@
+*.pyc
+*.pt
+*.out
+*.pkl
+.vscode/
+hydra/
+wandb/
+wandb_cache/

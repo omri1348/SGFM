@@ -1,0 +1,88 @@
+root_path: ${oc.env:PROJECT_ROOT}/data/perov_5
+name: perov
+num_targets: 1
+# num_targets: 6
+niggli: true
+primitive: false
+graph_method: crystalnn
+preprocess_workers: 30
+readout: mean
+max_atoms: 20
+otf_graph: false
+eval_model_name: perovskite
+symprec: 0.1
+angle_tolerance: 5.0
+equi_sample: true
+
+use_space_group: true
+use_pos_index: false
+train_max_epochs: 1000
+early_stopping_patience: 100000
+teacher_forcing_max_epoch: 1500
+
+datamodule:
+  _target_: sgfm.pl_data.datamodule.CrystDataModule
+
+  datasets:
+    train:
+      _target_: sgfm.pl_data.dataset.CrystDataset
+      name: Formation energy train
+      path: ${data.root_path}/train.csv
+      save_path: ${data.root_path}/train_sym.pt
+      mean_path: ${data.root_path}/k_mean.pt
+      std_path: ${data.root_path}/k_std.pt
+      niggli: ${data.niggli}
+      primitive: ${data.primitive}
+      graph_method: ${data.graph_method}
+      symprec: ${data.symprec}
+      angle_tolerance: ${data.angle_tolerance}
+      equi_sample: ${data.equi_sample}
+      use_space_group: ${data.use_space_group}
+      use_pos_index: ${data.use_pos_index}
+      preprocess_workers: ${data.preprocess_workers}
+
+    val:
+      - _target_: sgfm.pl_data.dataset.CrystDataset
+        name: Formation energy val
+        path: ${data.root_path}/val.csv
+        save_path: ${data.root_path}/val_sym.pt
+        mean_path: ${data.root_path}/k_mean.pt
+        std_path: ${data.root_path}/k_std.pt
+        niggli: ${data.niggli}
+        primitive: ${data.primitive}
+        graph_method: ${data.graph_method}
+        symprec: ${data.symprec}
+        angle_tolerance: ${data.angle_tolerance}
+        equi_sample: ${data.equi_sample}
+        use_space_group: ${data.use_space_group}
+        use_pos_index: ${data.use_pos_index}
+        preprocess_workers: ${data.preprocess_workers}
+
+    test:
+      - _target_: sgfm.pl_data.dataset.CrystDataset
+        name: Formation energy test
+        path: ${data.root_path}/test.csv
+        save_path: ${data.root_path}/test_sym.pt
+        mean_path: ${data.root_path}/k_mean.pt
+        std_path: ${data.root_path}/k_std.pt
+        niggli: ${data.niggli}
+        primitive: ${data.primitive}
+        graph_method: ${data.graph_method}
+        symprec: ${data.symprec}
+        angle_tolerance: ${data.angle_tolerance}
+        equi_sample: ${data.equi_sample}
+        use_space_group: ${data.use_space_group}
+        use_pos_index: ${data.use_pos_index}
+        preprocess_workers: ${data.preprocess_workers}
+
+  num_workers:
+    train: 0
+    val: 0
+    test: 0
+
+  batch_size:
+    train: 256
+    val: 256
+    test: 256
+
+
