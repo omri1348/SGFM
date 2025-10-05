@@ -36,7 +36,7 @@ The following scripts can be used to reproduce the SGFM models from the paper (C
 bash scripts/run_csp.sh
 bash scripts/run_dng.sh
 ```
-Pretrained checkpoints can be found [here](https://drive.google.com/drive/folders/16Tz0LLnDPWyCkI8fAKH5FphxYR6C07ph?usp=sharing)
+Pretrained checkpoints can be found [here](https://drive.google.com/drive/folders/16Tz0LLnDPWyCkI8fAKH5FphxYR6C07ph?usp=sharing).
 A custom training session can be initiated with the following command.
 ```
 python src/sgfm/run.py expaname=<XX> data=<XX> ...
