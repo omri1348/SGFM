@@ -18,6 +18,7 @@ from smact.screening import pauling_test
 from torch_geometric.data import Batch
 
 import pickle as pkl
+from sgfm.pl_modules.sgfm_model import SGFM
 import torch.utils
 
 from sgfm.common.constants import CompScalerMeans, CompScalerStds
@@ -43,19 +44,10 @@ def set_out_filename(args, epoch):
 
 def load_model(model_path: Path) -> torch.nn.Module:
     root_path = str(model_path.parent)
-    with initialize_config_dir(root_path, version_base="1.1"):
-        cfg = compose(config_name='hparams')
-        print('instantiate model..')
-        model = hydra.utils.instantiate(
-            cfg.model,
-            optim=cfg.optim,
-            data=cfg.data,
-            # logging=cfg.logging,
-            _recursive_=False,
-        )
-        print('done instantiating model')
-        hparams = os.path.join(root_path, "hparams.yaml")
-        model = model.load_from_checkpoint(str(model_path), hparams_file=hparams, strict=True)
+    hparams = os.path.join(root_path, "hparams.yaml")
+    print('loading model from checkpoint..')
+    model = SGFM.load_from_checkpoint(str(model_path), hparams_file=hparams, strict=True)
+    print('done loading model')
     return model
 
 def load_data(
@@ -163,7 +155,7 @@ def sample(loader, model, num_steps=1000, verbose=False, slope_k=0, slope_x=0):
     return pred_arr, gt_arr
 
 
-def get_gt_crystals(model_path, cfg, args):
+def get_gt_crystals(model_path, args):
     with initialize_config_dir(str(model_path.parent), version_base="1.1"):
         cfg = compose(config_name='hparams')
     if args.full_cmpute:

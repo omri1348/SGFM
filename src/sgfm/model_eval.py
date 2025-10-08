@@ -7,7 +7,7 @@ from sgfm.common.eval_utils import load_data, load_model, sample, set_out_filena
 from sgfm.common.metrics import Crystal, RecEval, GenEval
 from p_tqdm import p_map
 
-def csp_post_sampling(pred_arr, gt_arr,args, pt_path):
+def csp_post_sampling(pred_arr, gt_arr, args, pt_path):
     gt_crys = p_map(lambda x: Crystal(x), gt_arr)
     pred_crys = p_map(lambda x: Crystal(x), pred_arr)
     rec_evaluator = RecEval(pred_crys, gt_crys)
@@ -89,7 +89,7 @@ def main(args: argparse.Namespace):
     if model.mode == "CSP":
         csp_post_sampling(pred_arr, gt_arr, args, pt_path)
     if model.mode == "DNG":
-        dng_post_sampling(pred_arr, gt_arr, start_time, args, pt_path, model_path)
+        dng_post_sampling(pred_arr, args, pt_path, model_path)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

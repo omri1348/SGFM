@@ -10,12 +10,11 @@ We achieve state of the art results on crystal structure prediction and de novo 
 Arxiv paper can be found [here](https://www.arxiv.org/abs/2509.23822) 
 
 ### Setup
-The following snippet creates a conda environment for training and evaluating SGFM. It also installs the SGFM source code as a package in editable mode.
+Run this script to initialize the virtual environment (uv is required).
 ```
-conda env create -f sgfm.yml
-conda activate sgfm
-pip install -e .
+bash setup_uv.sh
 ```
+To activate the virtual environemnt run `source .venv/bin/activate`
 Additionally, fill in the appropriate paths in the `.env` file.
 ```
 PROJECT_ROOT="XXX/SGFM"
