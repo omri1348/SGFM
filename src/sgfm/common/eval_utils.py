@@ -158,13 +158,13 @@ def sample(loader, model, num_steps=1000, verbose=False, slope_k=0, slope_x=0):
 def get_gt_crystals(model_path, args):
     with initialize_config_dir(str(model_path.parent), version_base="1.1"):
         cfg = compose(config_name='hparams')
-    if args.full_cmpute:
+    if args.full_compute:
         test_file_path = Path(cfg.data.root_path) / "crystal_full.pkl"
     else:
         test_file_path = Path(cfg.data.root_path) / "crystal.pkl"
     print(f"Loading crystals from {test_file_path}")
     crystal_arr = pkl.load(open(test_file_path, 'rb'))
-    return crystal_arr
+    return crystal_arr, cfg
 
 
 def smact_validity(comp, count,

@@ -36,9 +36,9 @@ def dng_post_sampling(pred_arr, args, pt_path, model_path):
             "pred_arr": pred_arr,
         },
         pt_path)
-    gt_crys = get_gt_crystals(model_path, args)
+    gt_crys, cfg = get_gt_crystals(model_path, args)
     gen_evaluator = GenEval(pred_crys, gt_crys, eval_model_name=cfg.data.eval_model_name, n_samples=args.dng_num_valid_samples)
-    gen_metrics = gen_evaluator.get_metrics(do_coverage=args.dng_compute_coverage)
+    gen_metrics = gen_evaluator.get_metrics(full_compute=args.full_compute)
     out_path_json = pt_path.with_suffix(".json")
     with open(out_path_json, "w") as f:
         json.dump(gen_metrics, f)   

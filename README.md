@@ -14,14 +14,7 @@ Run this script to initialize the virtual environment (uv is required).
 ```
 bash setup_uv.sh
 ```
-To activate the virtual environemnt run `source .venv/bin/activate`
-Additionally, fill in the appropriate paths in the `.env` file.
-```
-PROJECT_ROOT="XXX/SGFM"
-HYDRA_JOBS="XXX/SGFM/hydra"
-WABDB_DIR="XXX/SGFM/wabdb"
-WABDB_CACHE_DIR="XXX/SGFM/wabdb_cache"
-```
+To activate the virtual environemnt run `source .venv/bin/activate`.
 ### Data Setup
 Run the following scripts to preprocess the crystal datasets. This step is required before training and evaluation.
 ```
