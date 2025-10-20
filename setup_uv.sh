@@ -26,10 +26,7 @@ fi
 # Sync uv
 uv sync
 
-# Activate the virtual environment
-echo "🔌 Activating virtual environment..."
-source .venv/bin/activate
-
+# explain how to use environment
 echo "✅ Setup complete!"
 echo ""
 echo "To activate the environment in the future, run:"
