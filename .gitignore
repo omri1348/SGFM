@@ -6,3 +6,4 @@
 hydra/
 wandb/
 wandb_cache/
+.env

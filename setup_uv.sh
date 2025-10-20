@@ -23,32 +23,12 @@ if ! command -v uv &> /dev/null; then
     exit 1
 fi
 
-# Create and activate virtual environment
-echo "📦 Creating virtual environment with Python 3.9..."
-uv venv --python 3.9 .venv
+# Sync uv
+uv sync
 
 # Activate the virtual environment
 echo "🔌 Activating virtual environment..."
 source .venv/bin/activate
-
-# Suppress NetworkX backend warnings
-export PYTHONWARNINGS="ignore::RuntimeWarning:networkx.utils.backends"
-
-# Install PyTorch with CUDA support first (similar to conda channels)
-echo "🔥 Installing PyTorch with CUDA 11.8 support..."
-uv pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cu118
-
-# Install PyTorch Geometric
-echo "🌐 Installing PyTorch Geometric..."
-uv pip install torch-geometric==2.5.2
-
-# Install PyTorch extensions
-echo "⚡ Installing PyTorch extensions..."
-uv pip install torch-scatter torch-sparse -f https://data.pyg.org/whl/torch-2.1.0+cu118.html
-
-# Install the project in editable mode (this will install other dependencies from pyproject.toml)
-echo "📋 Installing project dependencies..."
-uv pip install -e .
 
 echo "✅ Setup complete!"
 echo ""
