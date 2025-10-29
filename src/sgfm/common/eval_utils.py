@@ -175,6 +175,7 @@ def smact_validity(comp, count,
     smact_elems = [e[1] for e in space.items()]
     electronegs = [e.pauling_eneg for e in smact_elems]
     ox_combos = [e.oxidation_states for e in smact_elems]
+    ox_combos = list(filter(lambda x: x is not None, ox_combos))
     if len(set(elem_symbols)) == 1:
         return True
     if include_alloys:

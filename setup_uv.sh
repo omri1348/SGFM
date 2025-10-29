@@ -6,7 +6,7 @@
 set -e  # Exit on any error
 
 # Create .env file with PROJECT_ROOT variable
-PROJECT_ROOT="$(dirname "$0")"
+PROJECT_ROOT="$(pwd)"
 echo "🌍 Setting PROJECT_ROOT in .env to $PROJECT_ROOT"
 echo "PROJECT_ROOT=\"$PROJECT_ROOT\"" > .env
 # Create directories if they do not exist
