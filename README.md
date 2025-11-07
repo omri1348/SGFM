@@ -21,6 +21,7 @@ Run the following scripts to preprocess the crystal datasets. This step is requi
 bash scripts/data_setup.sh
 bash scripts/crystal_pkl.sh
 ```
+The dataset `alex_mp_20` requires a few more steps. Follow the instructions in `data/alex_mp_20/README.md`.
 ### Training
 
 The following scripts can be used to reproduce the SGFM models from the paper (CSP and DNG) trained on the MP-20 dataset.

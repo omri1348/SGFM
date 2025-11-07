@@ -1,4 +1,3 @@
-from pathlib import Path
 from sgfm.common.utils import PROJECT_ROOT
 import hydra
 import pytorch_lightning as pl
