@@ -1,7 +1,6 @@
 root_path: ${oc.env:PROJECT_ROOT}/data/alex_mp_20
 name: alex_mp_20
 num_targets: 1
-# num_targets: 6
 niggli: true
 primitive: False
 graph_method: crystalnn

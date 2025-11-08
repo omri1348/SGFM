@@ -25,3 +25,4 @@ defaults:
   - model: sgfm
   - optim: default
   - train: default
+  - _self_

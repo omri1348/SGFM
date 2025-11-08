@@ -8,4 +8,4 @@ normalize_k: true
 
 defaults:
   - flow_model: flow_model
-  
+  - _self_

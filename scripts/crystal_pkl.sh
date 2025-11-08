@@ -1,9 +1,5 @@
 #!/bin/sh
 
-echo "Generating crystal pkls"
-uv run scripts/crystal_pkl.py mp_20
-# uv run scripts/crystal_pkl.py alex_mp_20
-
 items=('mp_20')
 # items=('mp_20' 'alex_mp_20')
 
