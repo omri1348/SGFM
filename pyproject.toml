@@ -2,7 +2,7 @@
 name = "sgfm"
 version = "0.0.0"
 authors = [
-  { name="Omri Puny, Yaron Lipman, Benjamin Kurt Miller", email="" },
+  { name="XXX", email="" },
 ]
 description = "Structure-Guided Flow Model for crystal structure generation"
 readme = "README.md"
@@ -70,8 +70,6 @@ dependencies = [
     "p_tqdm>=1.4.0",
 ]
 
-[project.urls]
-Homepage = "https://github.com/omri1348/SGFM"
 
 [tool.uv.sources]
 torch = [

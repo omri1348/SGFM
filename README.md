@@ -1,14 +1,5 @@
 ## SGFM
 
-Official Implementation of the paper "Space Group Conditional Flow Matching".
-
-### Abstract
-Inorganic crystals are periodic, highly-symmetric arrangements of atoms in three-dimensional space. Their structures are constrained by the symmetry operations of a crystallographic space group and restricted to lie in specific affine subspaces known as Wyckoff positions. The frequency an atom appears in the crystal and its rough positioning are determined by its Wyckoff position. Most generative models that predict atomic coordinates overlook these symmetry constraints, leading to unrealistically high populations of proposed crystals exhibiting limited symmetry.
-We introduce Space Group Conditional Flow Matching, a novel generative framework that samples significantly closer to the target population of highly-symmetric, stable crystals. We achieve this by conditioning the entire generation process on a given space group and set of Wyckoff positions; specifically, we define a conditionally symmetric noise base distribution and a group-conditioned, equivariant, parametric vector field that restricts the motion of atoms to their initial Wyckoff position. Our form of group-conditioned equivariance is achieved using an efficient reformulation of group averaging tailored for symmetric crystals. Importantly, it reduces the computational overhead of symmetrization to a negligible level.
-We achieve state of the art results on crystal structure prediction and de novo generation benchmarks. We also perform relevant ablations.
-
-Arxiv paper can be found [here](https://www.arxiv.org/abs/2509.23822) 
-
 ### Setup
 Run this script to initialize the virtual environment (uv is required).
 ```
@@ -21,7 +12,6 @@ Run the following scripts to preprocess the crystal datasets. This step is requi
 bash scripts/data_setup.sh
 bash scripts/crystal_pkl.sh
 ```
-The dataset `alex_mp_20` requires a few more steps. Follow the instructions in `data/alex_mp_20/README.md`.
 ### Training
 
 The following scripts can be used to reproduce the SGFM models from the paper (CSP and DNG) trained on the MP-20 dataset.
@@ -29,7 +19,7 @@ The following scripts can be used to reproduce the SGFM models from the paper (C
 bash scripts/run_csp.sh
 bash scripts/run_dng.sh
 ```
-Pretrained checkpoints can be found [here](https://drive.google.com/drive/folders/16Tz0LLnDPWyCkI8fAKH5FphxYR6C07ph?usp=sharing).
+
 A custom training session can be initiated with the following command.
 ```
 python src/sgfm/run.py expaname=<XX> data=<XX> ...
@@ -49,15 +39,3 @@ python -u src/sgfm/model_eval.py $MODEL_PATH --num_steps $NUM_STEPS --slope_k $S
 ```
 The type of evaluation (CSP/DNG) is determined by the model config.
 
-## Citation
-```
-@misc{puny2025spacegroupconditionalflow,
-      title={Space Group Conditional Flow Matching}, 
-      author={Omri Puny and Yaron Lipman and Benjamin Kurt Miller},
-      year={2025},
-      eprint={2509.23822},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2509.23822}, 
-}
-```
