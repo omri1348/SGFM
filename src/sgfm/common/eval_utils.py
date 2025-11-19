@@ -50,10 +50,13 @@ def load_model(model_path: Path) -> torch.nn.Module:
     print('done loading model')
     return model
 
+
 def load_data(
     root_path,
     dataset: Literal["train", "val", "test"] = "test",
     subset_size: Optional[int] = None,
+    rank: Optional[int] = None,
+    num_ranks: Optional[int] = None,
 ) -> torch.utils.data.DataLoader:
     with initialize_config_dir(str(root_path), version_base="1.1"):
         cfg = compose(config_name='hparams')
@@ -64,15 +67,28 @@ def load_data(
             cfg.data.datamodule,
             _recursive_=False,
         )
+        
+        assert (rank is None) == (num_ranks is None), "Both rank and num_ranks must be either None or not None"
         subset_inds = None
+
         if dataset == "train":
             print('Loading train data')
             datamodule.setup('fit')
-            subset_inds = np.random.choice(len(datamodule.train_dataset), subset_size)
+            if rank is not None and num_ranks is not None:
+                if subset_size is not None:
+                    subset_inds = np.random.choice(len(datamodule.train_dataset), subset_size//num_ranks)
+                else:
+                    subset_inds = np.array_split(np.arange(len(datamodule.train_dataset)), num_ranks)
+                    subset_inds = subset_inds[rank].tolist()
+            else:
+                subset_inds = np.random.choice(len(datamodule.train_dataset), subset_size)
             loader = datamodule.train_dataloader(shuffle=False, subset_inds=subset_inds)
         elif dataset == "test":
             print('Loading test data')
             datamodule.setup("test")
+            if rank is not None and num_ranks is not None:
+                subset_inds = [np.array_split(np.arange(len(dataset)), num_ranks) for dataset in datamodule.test_datasets]
+                subset_inds = [si[rank].tolist() for si in subset_inds]
             loader = datamodule.test_dataloader(subset_inds=subset_inds)[0]
 
     return loader
@@ -127,7 +143,7 @@ def update_atom_types(gt, pred, atom_types, out_a, batch):
     return gt, pred
 
 
-def sample(loader, model, num_steps=1000, verbose=False, slope_k=0, slope_x=0):
+def sample(loader, model, num_steps=1000, slope_k=0, slope_x=0):
     crystal_family = CrystalFamily()
     pred_arr = []
     gt_arr = []
