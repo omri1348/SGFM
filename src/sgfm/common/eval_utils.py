@@ -34,12 +34,12 @@ CompScaler = StandardScaler(
 
 def set_out_filename(args, epoch):
     if args.label == "":
-        out_filename = f"eval_diff_epoch{epoch:05d}_steps{args.num_steps:04d}_sk{args.slope_k:0.3f}_sx_{args.slope_x:0.3f}.pt"  
+        out_filename = f"eval_diff_epoch{epoch:05d}_steps{args.num_steps:04d}_sk{args.slope_k:0.3f}_sx_{args.slope_x:0.3f}"
     else:
-        out_filename = f"eval_diff_epoch{epoch:05d}_steps{args.num_steps:04d}_sk{args.slope_k:0.3f}_sx_{args.slope_x:0.3f}_{args.label}.pt"
-    if args.full_compute:
-        out_filename = f"full_{out_filename}"
-    return out_filename
+        out_filename = f"eval_diff_epoch{epoch:05d}_steps{args.num_steps:04d}_sk{args.slope_k:0.3f}_sx_{args.slope_x:0.3f}_{args.label}"
+    if args.do_dng_coverage:
+        out_filename = f"{out_filename}_coverage"
+    return out_filename + ".pt"
 
 
 def load_model(model_path: Path) -> torch.nn.Module:
@@ -171,10 +171,10 @@ def sample(loader, model, num_steps=1000, slope_k=0, slope_x=0):
     return pred_arr, gt_arr
 
 
-def get_gt_crystals(model_path, args):
+def get_gt_crystals(model_path: Path, do_dng_coverage: bool):
     with initialize_config_dir(str(model_path.parent), version_base="1.1"):
         cfg = compose(config_name='hparams')
-    if args.full_compute:
+    if do_dng_coverage:
         test_file_path = Path(cfg.data.root_path) / "crystal_full.pkl"
     else:
         test_file_path = Path(cfg.data.root_path) / "crystal.pkl"

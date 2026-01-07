@@ -1,14 +1,12 @@
 import json
 import os
 import pickle
-import time
 import argparse
 import torch
 from pathlib import Path
 from sgfm.common.eval_utils import load_data, load_model, sample, set_out_filename, get_gt_crystals
 from sgfm.common.metrics import Crystal, RecEval, GenEval
 from p_tqdm import p_map
-from hydra import compose, initialize_config_dir
 import pandas as pd
 
 
@@ -78,7 +76,7 @@ def csp_collecting(ranked_outdir, root_path, out_filename, args):
 
 def dng_post_sampling(pred_arr, args, pt_path):
     print("Saving results...")
-    pred_crys = p_map(lambda x: Crystal(x,full_compute=args.full_compute), pred_arr)
+    pred_crys = p_map(lambda x: Crystal(x,do_dng_coverage=args.do_dng_coverage), pred_arr)
     torch.save(
         {
             "eval_setting": args,
@@ -102,11 +100,9 @@ def dng_collecting(model_path, ranked_outdir, root_path, out_filename, args):
             with open(f, 'rb') as pickle_file:
                 result = pickle.load(pickle_file)
                 pred_crys.extend(result)
-        with initialize_config_dir(str(model_path.parent), version_base="1.1"):
-            cfg = compose(config_name='hparams')
-        gt_crys = get_gt_crystals(model_path, cfg, args)
+        gt_crys, cfg = get_gt_crystals(model_path, args.do_dng_coverage)
         gen_evaluator = GenEval(pred_crys, gt_crys, eval_model_name=cfg.data.eval_model_name, n_samples=args.dng_num_valid_samples)
-        gen_metrics = gen_evaluator.get_metrics(do_coverage=args.dng_compute_coverage)
+        gen_metrics = gen_evaluator.get_metrics(do_dng_coverage=args.do_dng_coverage)
         out_path_json = (root_path / out_filename).with_suffix(".json")
         with open(out_path_json, "w") as f:
             json.dump(gen_metrics, f)   
@@ -189,7 +185,7 @@ def main(args: argparse.Namespace):
         if model.mode == "CSP":
             csp_post_sampling(pred_arr, gt_arr, args, pt_path)
         if model.mode == "DNG":
-            dng_post_sampling(pred_arr, gt_arr, args, pt_path)
+            dng_post_sampling(pred_arr, args, pt_path)
 
     # only do this if we are running in a distributed setting
     if args.num_ranks is not None:
@@ -212,7 +208,7 @@ if __name__ == "__main__":
     parser.add_argument("--slope_x", default=0, type=float)
     parser.add_argument("--dng_data_subset_size", default=10_000, type=int)
     parser.add_argument("--dng_num_valid_samples", default=1_000, type=int)
-    parser.add_argument("--full_compute", action="store_true", default=False)
+    parser.add_argument("--do_dng_coverage", action="store_true", default=False)
     parser.add_argument("--overwrite", action="store_true")
     parser.add_argument("--num_ranks", default=None, type=int)
     parser.add_argument(

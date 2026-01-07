@@ -30,7 +30,7 @@ COV_Cutoffs = {
 
 
 class Crystal(object):
-    def __init__(self, crys_array_dict, full_compute=False):
+    def __init__(self, crys_array_dict, do_dng_coverage=False):
         self.frac_coords = crys_array_dict['frac_coords']
         self.atom_types = crys_array_dict['atom_types']
         self.lengths = crys_array_dict['lengths']
@@ -43,7 +43,7 @@ class Crystal(object):
         self.get_structure()
         self.get_composition()
         self.get_validity()
-        if full_compute:
+        if do_dng_coverage:
             self.get_fingerprints()
             self.get_coordination_number()
 
@@ -224,12 +224,12 @@ class GenEval(object):
             comp_cutoff=cutoff_dict['comp'])
         return cov_metrics_dict
 
-    def get_metrics(self, full_compute=False):
+    def get_metrics(self, do_dng_coverage=False):
         metrics = {}
         metrics.update(self.get_validity())
         metrics.update(self.get_density_wdist())
         metrics.update(self.get_num_elem_wdist())
-        if full_compute:
+        if do_dng_coverage:
             metrics.update(self.get_cn_wdist())
             metrics.update(self.get_coverage())
         return metrics
