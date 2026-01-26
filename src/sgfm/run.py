@@ -74,6 +74,7 @@ def run(cfg: DictConfig) -> None:
 
     # Hydra run directory
     hydra_dir = Path(HydraConfig.get().runtime.output_dir)
+    print(f"Hydra run directory: {hydra_dir}")
 
     # Instantiate datamodule
     hydra.utils.log.info(f"Instantiating <{cfg.data.datamodule._target_}>")

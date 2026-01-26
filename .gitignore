@@ -7,3 +7,7 @@ hydra/
 wandb/
 wandb_cache/
 .env
+
+slurm_mass_evaluate/
+sgfm_alexmp20_15/
+slurm_final/
