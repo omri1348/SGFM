@@ -18,6 +18,7 @@ DATASETS = {
     "mpts_52": DATA_DIR / "mpts_52",
     "carbon_24": DATA_DIR / "carbon_24",
     "perov_5": DATA_DIR / "perov_5",
+    "alex_mp_20": DATA_DIR / "alex_mp_20",
 }
 
 SPLITS = ["train", "val", "test"]
@@ -81,6 +82,11 @@ def main():
         directory = DATASETS[name]
         if not directory.exists():
             print(f"Skipping {name}: directory {directory} not found")
+            continue
+        csv_files = list(directory.glob("*.csv"))
+        if not csv_files:
+            print(f"WARNING: Skipping {name}: no CSV files found in {directory}. "
+                  f"You must provide the CSV files yourself (see data/{name}/README.md).")
             continue
         process_dataset(name, directory, num_workers=args.num_workers, overwrite=args.overwrite)
 
