@@ -1,0 +1,7 @@
+_target_: sgfm.pl_modules.ppgn.PPGNFlowModel
+mode: CSP
+width: 256
+num_layers: 6
+atom_dim: 100
+atom_type_dim: 0
+n_frequencies: 32
