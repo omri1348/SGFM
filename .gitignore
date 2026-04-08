@@ -11,3 +11,4 @@ wandb_cache/
 slurm_mass_evaluate/
 sgfm_alexmp20_15/
 slurm_final/
+*.parquet
