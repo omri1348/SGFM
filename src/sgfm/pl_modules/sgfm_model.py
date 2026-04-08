@@ -5,6 +5,7 @@ from typing import Any
 import hydra
 import pytorch_lightning as pl
 from sgfm.common.data_utils import expmap
+
 import math
 
 MAX_ATOMIC_NUM = 100
@@ -59,6 +60,12 @@ class SGFM(BaseModule):
             self.normalize_k = self.hparams.model.normalize_k
             self.mode = self.hparams.model.flow_model.mode
 
+        if self.mode == "DNG":
+            flow_cfg = self.hparams.flow_model if 'flow_model' in self.hparams else self.hparams.model.flow_model
+            self.atom_type_encoding = getattr(flow_cfg, 'atom_type_encoding', 'bit')
+        else:
+            self.atom_type_encoding = None
+
     def set_xt_vt(self,x0,u,t,num_atoms):
         xt = expmap(x0, t.repeat_interleave(num_atoms, dim=0).unsqueeze(-1) * u)
         vt = u
@@ -84,8 +91,12 @@ class SGFM(BaseModule):
         kt, vkt = self.set_kt_vkt(batch.k,batch.k_mask,t,batch.k_mean,batch.k_std)
         # atom types in bits
         if self.mode=='DNG':
-            atom_types = int2bits(batch.atom_types-1, NUM_ATOMIC_BITS)
-            atom_types_0 = torch.randn(batch.orbit_sizes.shape[0],NUM_ATOMIC_BITS, device=batch.x0.device)
+            if self.atom_type_encoding == 'bit':
+                atom_types = int2bits(batch.atom_types-1, NUM_ATOMIC_BITS)
+                atom_types_0 = torch.randn(batch.orbit_sizes.shape[0],NUM_ATOMIC_BITS, device=batch.x0.device)
+            elif self.atom_type_encoding == 'onehot':
+                atom_types = torch.nn.functional.one_hot(batch.atom_types-1, num_classes=MAX_ATOMIC_NUM).float()
+                atom_types_0 = torch.randn(batch.orbit_sizes.shape[0],MAX_ATOMIC_NUM, device=batch.x0.device)
             atom_types_0 = atom_types_0.repeat_interleave(batch.orbit_sizes, dim=0)
             t_atom_types = t.repeat_interleave(batch.num_atoms, dim=0).unsqueeze(-1)
             atom_types_t = (1-t_atom_types)*atom_types_0 + t_atom_types*atom_types
@@ -120,8 +131,12 @@ class SGFM(BaseModule):
         mask_v = (batch.u_mask != 0).float()
         # sample k0
         k0 = torch.randn_like(batch.k) * batch.k_mask
+        atom_types = None
         if self.mode == 'DNG':
-            atom_types_0 = torch.randn(batch.orbit_sizes.shape[0],NUM_ATOMIC_BITS, device=batch.x0.device)
+            if self.atom_type_encoding == 'bit':
+                atom_types_0 = torch.randn(batch.orbit_sizes.shape[0],NUM_ATOMIC_BITS, device=batch.x0.device)
+            elif self.atom_type_encoding == 'onehot':
+                atom_types_0 = torch.randn(batch.orbit_sizes.shape[0],MAX_ATOMIC_NUM, device=batch.x0.device)
             atom_types_0 = atom_types_0.repeat_interleave(batch.orbit_sizes, dim=0)
             z = torch.cat([batch.x0,k0.repeat_interleave(batch.num_atoms,dim=0), atom_types_0], dim=-1)
         elif self.mode == 'CSP':
@@ -155,8 +170,10 @@ class SGFM(BaseModule):
         k_pred = z[0,3:9]
         if self.mode == 'DNG':
             a_pred = z[:,9:]
-            a_pred = bits2int(a_pred)+1
-            # clip to fit max atomic number
+            if self.atom_type_encoding == 'bit':
+                a_pred = bits2int(a_pred)+1
+            elif self.atom_type_encoding == 'onehot':
+                a_pred = torch.argmax(a_pred, dim=-1)+1
             if a_pred.max() > MAX_ATOMIC_NUM:
                 print('non-valid crystal found, clipping atomic numbers')
             a_pred = a_pred.clip(max=MAX_ATOMIC_NUM)

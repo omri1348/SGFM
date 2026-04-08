@@ -5,11 +5,12 @@ import torch
 from tqdm import tqdm
 from sgfm.common.utils import PROJECT_ROOT
 from sgfm.common.metrics import Crystal
+from sgfm.common.parquet_utils import load_parquet
 
 
 def create_pkl(root: str, do_dng_coverage: bool = False) -> None:
-    source_path = os.path.join(root, "test_sym.pt")
-    source_data = torch.load(source_path)
+    source_path = os.path.join(root, "test_sym.parquet")
+    source_data = load_parquet(source_path)
     cyrstal_arr = []
     for i, d in tqdm(enumerate(source_data)):
         (

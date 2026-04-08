@@ -1,27 +1,18 @@
 from argparse import ArgumentParser, Namespace
-import torch
-
 from pathlib import Path
 
 from sgfm.common.data_utils import preprocess
+from sgfm.common.parquet_utils import save_parquet
 
 
 def main(args: Namespace) -> None:
-    csvs = [
-        str(args.directory / "train.csv"),
-        str(args.directory / "val.csv"),
-        str(args.directory / "test.csv"),
-    ]
-    pts = [
-        str(args.directory / "train_sym.pt"),
-        str(args.directory / "val_sym.pt"),
-        str(args.directory / "test_sym.pt"),
-    ]
+    keys = ["train", "val", "test"]
+    csvs = {k: str(args.directory / f"{k}.csv") for k in keys}
 
-    for csv, pt in zip(csvs, pts):
-        print("working on", csv)
+    for key in keys:
+        print("working on", csvs[key])
         cached_data = preprocess(
-            csv,
+            csvs[key],
             num_workers=94,
             niggli=True,
             primitive=False,
@@ -30,8 +21,9 @@ def main(args: Namespace) -> None:
             angle_tolerance=5,
             use_space_group=True,
         )
-        torch.save(cached_data, pt)
-        print("done with", csv)
+        save_path = args.directory / f"{key}_sym.parquet"
+        save_parquet(cached_data, save_path)
+        print("done with", csvs[key])
 
 
 if __name__ == "__main__":

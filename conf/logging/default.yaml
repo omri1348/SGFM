@@ -7,7 +7,7 @@ wandb:
   project: CGFM_MP20
   entity: null
   log_model: True
-  mode: 'online'
+  mode: 'disabled'
   group: ${expname}
 
 wandb_watch:

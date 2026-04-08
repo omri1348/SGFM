@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 import numpy as np
 import pandas as pd
@@ -99,8 +100,9 @@ chemical_symbols = [
 CrystalNN = local_env.CrystalNN(distance_cutoffs=None, x_diff_weight=-1, porous_adjustment=False)
 
 def normalize_k(data_path: str) -> None:
+    from sgfm.common.parquet_utils import load_parquet
     c = CrystalFamily()
-    data_dict = torch.load(data_path)
+    data_dict = load_parquet(data_path)
     data_dir = os.path.dirname(data_path)
     k_arr = []
     for i,d in tqdm(enumerate(data_dict)):
@@ -1308,6 +1310,7 @@ def process_one(
         })
         return result_dict
 
+
 def preprocess(
     input_file,
     num_workers,
@@ -1316,7 +1319,7 @@ def preprocess(
     graph_method,
     symprec: float = 0.1,
     angle_tolerance: float = 5.0,
-    use_space_group=False,
+    use_space_group: bool = False,
 ) -> list:
     df = pd.read_csv(input_file)
 
@@ -1381,38 +1384,6 @@ def batch_accuracy_precision_recall(
         start_idx = start_idx + num_bond
 
     return np.mean(accuracies), np.mean(precisions), np.mean(recalls)
-
-def preprocess_tensors(crystal_array_list, niggli, primitive, graph_method):
-    def process_one(batch_idx, crystal_array, niggli, primitive, graph_method):
-        frac_coords = crystal_array['frac_coords']
-        atom_types = crystal_array['atom_types']
-        lengths = crystal_array['lengths']
-        angles = crystal_array['angles']
-        crystal = Structure(
-            lattice=Lattice.from_parameters(
-                *(lengths.tolist() + angles.tolist())),
-            species=atom_types,
-            coords=frac_coords,
-            coords_are_cartesian=False)
-        graph_arrays = build_crystal_graph(crystal, graph_method)
-        result_dict = {
-            'batch_idx': batch_idx,
-            'graph_arrays': graph_arrays,
-        }
-        return result_dict
-
-    unordered_results = p_umap(
-        process_one,
-        list(range(len(crystal_array_list))),
-        crystal_array_list,
-        [niggli] * len(crystal_array_list),
-        [primitive] * len(crystal_array_list),
-        [graph_method] * len(crystal_array_list),
-        num_cpus=30,
-    )
-    ordered_results = list(
-        sorted(unordered_results, key=lambda x: x['batch_idx']))
-    return ordered_results
 
 
 class StandardScaler:

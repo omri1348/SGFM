@@ -29,7 +29,7 @@ datamodule:
       _target_: sgfm.pl_data.dataset.CrystDataset
       name: Formation energy train
       path: ${data.root_path}/train.csv
-      save_path: ${data.root_path}/train_sym.pt
+      save_path: ${data.root_path}/train_sym.parquet
       mean_path: ${data.root_path}/k_mean.pt
       std_path: ${data.root_path}/k_std.pt
       niggli: ${data.niggli}
@@ -46,7 +46,7 @@ datamodule:
       - _target_: sgfm.pl_data.dataset.CrystDataset
         name: Formation energy val
         path: ${data.root_path}/val.csv
-        save_path: ${data.root_path}/val_sym.pt
+        save_path: ${data.root_path}/val_sym.parquet
         mean_path: ${data.root_path}/k_mean.pt
         std_path: ${data.root_path}/k_std.pt
         niggli: ${data.niggli}
@@ -63,7 +63,7 @@ datamodule:
       - _target_: sgfm.pl_data.dataset.CrystDataset
         name: Formation energy test
         path: ${data.root_path}/test.csv
-        save_path: ${data.root_path}/test_sym.pt
+        save_path: ${data.root_path}/test_sym.parquet
         mean_path: ${data.root_path}/k_mean.pt
         std_path: ${data.root_path}/k_std.pt
         niggli: ${data.niggli}

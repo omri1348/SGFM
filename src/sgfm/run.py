@@ -1,6 +1,12 @@
 from pathlib import Path
 from typing import List
 import os
+import warnings
+
+warnings.filterwarnings("ignore", message="pkg_resources is deprecated")
+warnings.filterwarnings("ignore", message="The 'repr' attribute.*has no effect")
+warnings.filterwarnings("ignore", message="The 'frozen' attribute.*has no effect")
+
 import hydra
 import omegaconf
 import pytorch_lightning as pl

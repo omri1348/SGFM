@@ -3,8 +3,8 @@ import pandas as pd
 from omegaconf import ValueNode
 from torch.utils.data import Dataset
 import os
-import numpy as np
-from sgfm.common.data_utils import normalize_k, preprocess, sample_x0, logmap, logmap2, preprocess_tensors
+from sgfm.common.data_utils import normalize_k, preprocess, sample_x0, logmap, logmap2
+from sgfm.common.parquet_utils import save_parquet, load_parquet
 from sgfm.pl_modules.lattice.crystal_family import CrystalFamily
 from torch_geometric.data import Data
 from torch_geometric.data.batch import Batch
@@ -25,7 +25,8 @@ def cryst_collate_fn(data_list):
         pad_permutation.append(perm)
     batch.G_inv_permutation = torch.cat(pad_permutation, dim=0)
     return batch
-    
+
+
 class CrystDataset(Dataset):
     def __init__(
             self, 
@@ -62,7 +63,7 @@ class CrystDataset(Dataset):
 
     def preprocess(self, save_path, preprocess_workers, mean_path, std_path):
         if os.path.exists(save_path):
-            self.cached_data = torch.load(save_path)
+            self.cached_data = load_parquet(save_path)
             self.max_atom=100
         else:
             cached_data = preprocess(
@@ -75,7 +76,7 @@ class CrystDataset(Dataset):
                 angle_tolerance=self.angle_tolerance,  # Default angle tolerance
                 use_space_group=self.use_space_group,
             )
-            torch.save(cached_data, save_path)
+            save_parquet(cached_data, save_path)
             print(f"Saved preprocessed data to {save_path}")
             print(f"Dataset size: {len(cached_data)}")
             self.cached_data = cached_data
@@ -119,8 +120,8 @@ class CrystDataset(Dataset):
             frac_coords=torch.Tensor(frac_coords),
             atom_types=torch.LongTensor(atom_types),
             Point_G=Point_G,
-            num_nodes=num_atoms,
-            num_atoms=num_atoms,
+            num_nodes=int(num_atoms),
+            num_atoms=int(num_atoms),
             x0=x0,
             u=u,
             u_mask=u_mask,

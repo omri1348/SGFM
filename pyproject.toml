@@ -16,7 +16,7 @@ dependencies = [
     # Core scientific computing
     "numpy>=1.26.0,<2.0",
     "scipy>=1.13.0",
-    "pandas>=2.2.0",
+    "pandas[performance,pyarrow]>=2.2.0",
     "scikit-learn>=1.4.0",
     "matplotlib",
     "plotly>=6.3.0",
@@ -68,6 +68,7 @@ dependencies = [
     "setproctitle>=1.3.0",
     # Parallel processing
     "p_tqdm>=1.4.0",
+    "pyarrow>=23.0.0",
 ]
 
 [project.urls]
@@ -101,3 +102,11 @@ format = "flat"
 [build-system]
 requires = ["uv_build>=0.8.13,<0.9.0"]
 build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = [
+    "ignore:pkg_resources is deprecated:UserWarning",
+    "ignore:The 'repr' attribute.*has no effect:pydantic.warnings.UnsupportedFieldAttributeWarning",
+    "ignore:The 'frozen' attribute.*has no effect:pydantic.warnings.UnsupportedFieldAttributeWarning",
+]
