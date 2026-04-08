@@ -146,7 +146,7 @@ class SGFMNet(nn.Module):
         self.coord_out = nn.Linear(hidden_dim_before_out, 3, bias = False)
         self.lattice_out = nn.Linear(hidden_dim_before_out, 6, bias = False)
         if self.mode == 'DNG':
-            self.atom_out = nn.Linear(hidden_dim_before_out, NUM_ATOMIC_BITS, bias = False)
+            self.atom_out = nn.Linear(hidden_dim_before_out, atom_dim, bias = False)
 
         self.ln = ln
         if self.ln:

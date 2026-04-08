@@ -3,6 +3,11 @@ from typing import List
 import os
 import warnings
 
+# Set NUMEXPR_MAX_THREADS before any imports that trigger numexpr
+if "NUMEXPR_MAX_THREADS" not in os.environ:
+    physical_cores = len(os.sched_getaffinity(0))
+    os.environ["NUMEXPR_MAX_THREADS"] = str(min(physical_cores, 64))
+
 warnings.filterwarnings("ignore", message="pkg_resources is deprecated")
 warnings.filterwarnings("ignore", message="The 'repr' attribute.*has no effect")
 warnings.filterwarnings("ignore", message="The 'frozen' attribute.*has no effect")

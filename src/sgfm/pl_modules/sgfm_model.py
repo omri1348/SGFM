@@ -8,6 +8,10 @@ from sgfm.common.data_utils import expmap
 
 import math
 
+import logging
+
+log = logging.getLogger(__name__)
+
 MAX_ATOMIC_NUM = 100
 NUM_ATOMIC_BITS = math.floor(math.log2(MAX_ATOMIC_NUM)) + 1
 
@@ -51,20 +55,49 @@ class BaseModule(pl.LightningModule):
 class SGFM(BaseModule):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        if 'flow_model' in self.hparams:
-            self.ut = hydra.utils.instantiate(self.hparams.flow_model, _recursive_=False)
-            self.normalize_k = self.hparams.normalize_k
-            self.mode = self.hparams.flow_model.mode
-        else:
-            self.ut = hydra.utils.instantiate(self.hparams.model.flow_model, _recursive_=False)
-            self.normalize_k = self.hparams.model.normalize_k
-            self.mode = self.hparams.model.flow_model.mode
+        flow_cfg = self.hparams.flow_model if 'flow_model' in self.hparams else self.hparams.model.flow_model
+        self.mode = flow_cfg.mode
 
         if self.mode == "DNG":
-            flow_cfg = self.hparams.flow_model if 'flow_model' in self.hparams else self.hparams.model.flow_model
             self.atom_type_encoding = getattr(flow_cfg, 'atom_type_encoding', 'bit')
         else:
             self.atom_type_encoding = None
+
+        # Derive correct atom_dim from mode/encoding
+        correct_atom_dim = self._derive_atom_dim()
+        configured_atom_dim = getattr(flow_cfg, 'atom_dim', None)
+        if configured_atom_dim is not None and configured_atom_dim != correct_atom_dim:
+            log.warning(
+                f"Overriding atom_dim={configured_atom_dim} -> {correct_atom_dim} "
+                f"(mode={self.mode}, atom_type_encoding={self.atom_type_encoding})"
+            )
+        flow_cfg.atom_dim = correct_atom_dim
+
+        # Also fix atom_type_dim for PPGN-style models
+        if hasattr(flow_cfg, 'atom_type_dim'):
+            correct_atd = correct_atom_dim if self.mode == 'DNG' else 0
+            if flow_cfg.atom_type_dim != correct_atd:
+                log.warning(
+                    f"Overriding atom_type_dim={flow_cfg.atom_type_dim} -> {correct_atd} "
+                    f"(mode={self.mode}, atom_type_encoding={self.atom_type_encoding})"
+                )
+            flow_cfg.atom_type_dim = correct_atd
+
+        if 'flow_model' in self.hparams:
+            self.ut = hydra.utils.instantiate(self.hparams.flow_model, _recursive_=False)
+            self.normalize_k = self.hparams.normalize_k
+        else:
+            self.ut = hydra.utils.instantiate(self.hparams.model.flow_model, _recursive_=False)
+            self.normalize_k = self.hparams.model.normalize_k
+
+    def _derive_atom_dim(self):
+        if self.mode == 'DNG':
+            if self.atom_type_encoding == 'bit':
+                return NUM_ATOMIC_BITS
+            else:  # onehot
+                return MAX_ATOMIC_NUM
+        else:  # CSP
+            return MAX_ATOMIC_NUM
 
     def set_xt_vt(self,x0,u,t,num_atoms):
         xt = expmap(x0, t.repeat_interleave(num_atoms, dim=0).unsqueeze(-1) * u)
